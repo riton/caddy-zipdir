@@ -1,10 +1,10 @@
 package httpsrv
 
 import (
-	"archive/zip"
 	"fmt"
 	"net/http"
 
+	"github.com/klauspost/compress/zip"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
@@ -58,16 +58,17 @@ func (h *httpServer) serveHTTP(c echo.Context) error {
 	c.Response().Header().Set("Content-Type", "application/zip")
 	c.Response().Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.zip\"", h.zipFilename))
 
-	zipWriter := zip.NewWriter(c.Response().Writer)
-
 	files, err := h.filesListProcessor.GetFiles()
 	if err != nil {
 		c.Logger().Errorf("fail to list files: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "internal server error")
 	}
 
+	zipWriter := zip.NewWriter(c.Response().Writer)
+
 	for _, file := range files {
 		c.Logger().Debugf("adding file %s to zip", file)
+
 		if err := addFileToZip(zipWriter, file); err != nil {
 			c.Logger().Errorf("fail to add file %s to zip: %w", file, err)
 			return echo.NewHTTPError(http.StatusInternalServerError, "internal server error")

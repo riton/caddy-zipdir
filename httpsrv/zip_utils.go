@@ -1,16 +1,16 @@
 package httpsrv
 
 import (
-	"archive/zip"
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/klauspost/compress/zip"
 
 	"github.com/pkg/errors"
 )
 
 func addFileToZip(zipWriter *zip.Writer, filename string) error {
-
 	fileToZip, err := os.Open(filename)
 	if err != nil {
 		return errors.Wrapf(err, "opening file %q", filename)
